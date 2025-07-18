@@ -6,13 +6,14 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/modifications/[id] - Get modification by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const [modification] = await db
       .select()
       .from(modifications)
-      .where(eq(modifications.id, params.id));
+      .where(eq(modifications.id, id));
 
     if (!modification) {
       return NextResponse.json(
@@ -34,16 +35,17 @@ export async function GET(
 // PUT /api/modifications/[id] - Update modification
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     // Check if modification exists
     const [existing] = await db
       .select()
       .from(modifications)
-      .where(eq(modifications.id, params.id));
+      .where(eq(modifications.id, id));
 
     if (!existing) {
       return NextResponse.json(
@@ -74,7 +76,7 @@ export async function PUT(
     const [updated] = await db
       .update(modifications)
       .set(updateData)
-      .where(eq(modifications.id, params.id))
+      .where(eq(modifications.id, id))
       .returning();
 
     return NextResponse.json(updated);
@@ -90,14 +92,15 @@ export async function PUT(
 // DELETE /api/modifications/[id] - Delete modification
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check if modification exists
     const [existing] = await db
       .select()
       .from(modifications)
-      .where(eq(modifications.id, params.id));
+      .where(eq(modifications.id, id));
 
     if (!existing) {
       return NextResponse.json(
@@ -106,7 +109,7 @@ export async function DELETE(
       );
     }
 
-    await db.delete(modifications).where(eq(modifications.id, params.id));
+    await db.delete(modifications).where(eq(modifications.id, id));
 
     return NextResponse.json({ message: "Modification deleted successfully" });
   } catch (error) {

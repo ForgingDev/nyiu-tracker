@@ -13,7 +13,7 @@ import { SINGLE_MOTORCYCLE } from "@/lib/single-motorcycle";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Service {
   id: string;
@@ -60,7 +60,7 @@ export default function EditServicePage() {
     nextServiceKm: "",
   });
 
-  const fetchService = async () => {
+  const fetchService = useCallback(async () => {
     try {
       const response = await fetch(`/api/services/${serviceId}`);
       if (!response.ok) {
@@ -88,13 +88,13 @@ export default function EditServicePage() {
     } finally {
       setLoadingService(false);
     }
-  };
+  }, [serviceId]);
 
   useEffect(() => {
     if (serviceId) {
       fetchService();
     }
-  }, [serviceId]);
+  }, [serviceId, fetchService]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

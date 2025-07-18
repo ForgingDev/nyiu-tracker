@@ -7,9 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/services/[id] - Get single service
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const [service] = await db
       .select({
         id: services.id,
@@ -28,7 +29,7 @@ export async function GET(
       })
       .from(services)
       .leftJoin(motorcycles, eq(services.motorcycleId, motorcycles.id))
-      .where(eq(services.id, params.id));
+      .where(eq(services.id, id));
 
     if (!service) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
@@ -47,9 +48,10 @@ export async function GET(
 // PUT /api/services/[id] - Update service
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const motorcycleId = getSingleMotorcycleId();
 
@@ -57,7 +59,7 @@ export async function PUT(
     const [existing] = await db
       .select()
       .from(services)
-      .where(eq(services.id, params.id));
+      .where(eq(services.id, id));
 
     if (!existing) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
@@ -90,7 +92,7 @@ export async function PUT(
     const [updated] = await db
       .update(services)
       .set(updateData)
-      .where(eq(services.id, params.id))
+      .where(eq(services.id, id))
       .returning();
 
     // Update motorcycle's current kilometers if this service has higher km
@@ -122,21 +124,22 @@ export async function PUT(
 // DELETE /api/services/[id] - Delete service
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check if service exists
     const [existing] = await db
       .select()
       .from(services)
-      .where(eq(services.id, params.id));
+      .where(eq(services.id, id));
 
     if (!existing) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
     }
 
     // Delete service
-    await db.delete(services).where(eq(services.id, params.id));
+    await db.delete(services).where(eq(services.id, id));
 
     return NextResponse.json(
       { message: "Service deleted successfully" },

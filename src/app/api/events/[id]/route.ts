@@ -7,9 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/events/[id] - Get single event
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const [event] = await db
       .select({
         id: events.id,
@@ -28,7 +29,7 @@ export async function GET(
       })
       .from(events)
       .leftJoin(motorcycles, eq(events.motorcycleId, motorcycles.id))
-      .where(eq(events.id, params.id));
+      .where(eq(events.id, id));
 
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -47,17 +48,15 @@ export async function GET(
 // PUT /api/events/[id] - Update event
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const motorcycleId = getSingleMotorcycleId();
 
     // Check if event exists
-    const [existing] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, params.id));
+    const [existing] = await db.select().from(events).where(eq(events.id, id));
 
     if (!existing) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -88,7 +87,7 @@ export async function PUT(
     const [updated] = await db
       .update(events)
       .set(updateData)
-      .where(eq(events.id, params.id))
+      .where(eq(events.id, id))
       .returning();
 
     // Update motorcycle's current kilometers if this event has higher km
@@ -120,21 +119,19 @@ export async function PUT(
 // DELETE /api/events/[id] - Delete event
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check if event exists
-    const [existing] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, params.id));
+    const [existing] = await db.select().from(events).where(eq(events.id, id));
 
     if (!existing) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Delete event
-    await db.delete(events).where(eq(events.id, params.id));
+    await db.delete(events).where(eq(events.id, id));
 
     return NextResponse.json(
       { message: "Event deleted successfully" },

@@ -13,7 +13,7 @@ import { SINGLE_MOTORCYCLE } from "@/lib/single-motorcycle";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Event {
   id: string;
@@ -59,7 +59,7 @@ export default function EditEventPage() {
     location: "",
   });
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       const response = await fetch(`/api/events/${eventId}`);
       if (!response.ok) {
@@ -87,13 +87,13 @@ export default function EditEventPage() {
     } finally {
       setLoadingEvent(false);
     }
-  };
+  }, [eventId]);
 
   useEffect(() => {
     if (eventId) {
       fetchEvent();
     }
-  }, [eventId]);
+  }, [eventId, fetchEvent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

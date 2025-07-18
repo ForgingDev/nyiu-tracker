@@ -52,24 +52,6 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
     }
   };
 
-  const handleSocialAuth = async (provider: "google" | "github") => {
-    setLoading(true);
-    setError("");
-
-    try {
-      await signIn.social({
-        provider,
-        callbackURL: "/",
-      });
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Social authentication failed"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Card className="w-full max-w-md mx-auto p-8 border-gray-700/60 bg-gray-800/80 backdrop-blur-sm shadow-2xl hover:shadow-green-500/10 transition-all duration-300">
       <div className="space-y-6">

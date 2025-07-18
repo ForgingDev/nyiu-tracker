@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "@/lib/auth-client";
 import { BarChart3, Calendar, LogOut, Settings, User } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export function Header() {
@@ -65,10 +66,12 @@ export function Header() {
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-gray-300">
                     {session.user.image ? (
-                      <img
+                      <Image
                         src={session.user.image}
                         alt={session.user.name || "User"}
                         className="h-8 w-8 rounded-full border-2 border-green-500"
+                        width={32}
+                        height={32}
                       />
                     ) : (
                       <div className="h-8 w-8 bg-green-600 rounded-full flex items-center justify-center">

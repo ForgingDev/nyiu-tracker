@@ -1,3 +1,4 @@
+import { getOptionalAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { motorcycles } from "@/lib/db/schema";
 import {
@@ -15,8 +16,13 @@ async function ensureSingleMotorcycle() {
     .where(eq(motorcycles.id, SINGLE_MOTORCYCLE.id));
 
   if (!existing) {
+    // Get current user ID or use a default
+    const session = await getOptionalAuth();
+    const userId = session?.user?.id || "default-user"; // Fallback for single-motorcycle app
+
     await db.insert(motorcycles).values({
       id: SINGLE_MOTORCYCLE.id,
+      userId,
       name: SINGLE_MOTORCYCLE.name,
       brand: SINGLE_MOTORCYCLE.brand,
       model: SINGLE_MOTORCYCLE.model,
